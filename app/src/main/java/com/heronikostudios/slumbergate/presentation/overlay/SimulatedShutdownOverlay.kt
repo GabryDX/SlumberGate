@@ -67,7 +67,11 @@ fun SimulatedShutdownOverlay(
     val context = LocalContext.current
     val timeFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
-    LaunchedEffect(wakeHour, wakeMinute) {
+    LaunchedEffect(wakeHour, wakeMinute, isScreenTurnedOff) {
+        if (isScreenTurnedOff) {
+            // Screen is unlit/face-down: suspend clock calculation loop completely to conserve CPU
+            return@LaunchedEffect
+        }
         while (true) {
             val now = Date()
             currentTimeString = timeFormat.format(now)

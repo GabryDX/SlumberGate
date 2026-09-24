@@ -22,6 +22,8 @@ class FlipSensorDetector(private val context: Context) : SensorEventListener {
     private var isProximityNear = false
     private var isFaceDown = false
     private var isSleepStanceActive = false
+    private var isAccelerometerRegistered = false
+    private var nonFaceDownSampleCount = 0
 
     var onSleepStanceChanged: ((isFaceDown: Boolean) -> Unit)? = null
 
@@ -29,10 +31,10 @@ class FlipSensorDetector(private val context: Context) : SensorEventListener {
         isProximityNear = false
         isFaceDown = false
         isSleepStanceActive = false
+        isAccelerometerRegistered = false
+        nonFaceDownSampleCount = 0
 
-        accelerometer?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
-        }
+        // Listen ONLY to proximity sensor initially (event-driven, draws microamps)
         proximity?.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
@@ -40,6 +42,7 @@ class FlipSensorDetector(private val context: Context) : SensorEventListener {
 
     fun stopListening() {
         sensorManager.unregisterListener(this)
+        isAccelerometerRegistered = false
         isSleepStanceActive = false
     }
 
@@ -52,7 +55,20 @@ class FlipSensorDetector(private val context: Context) : SensorEventListener {
                 val maxRange = event.sensor.maximumRange
                 // If distance is near 0 or less than max range / 5cm threshold
                 isProximityNear = distance < maxRange.coerceAtMost(5.0f)
-                checkStance()
+
+                if (isProximityNear) {
+                    // Screen is covered: register accelerometer briefly to verify face-down orientation
+                    if (!isAccelerometerRegistered && accelerometer != null) {
+                        nonFaceDownSampleCount = 0
+                        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+                        isAccelerometerRegistered = true
+                    }
+                } else {
+                    // Phone uncovered/picked up: immediately tear down stance and unregister accelerometer
+                    isFaceDown = false
+                    unregisterAccelerometer()
+                    checkStance()
+                }
             }
 
             Sensor.TYPE_ACCELEROMETER -> {
@@ -60,7 +76,26 @@ class FlipSensorDetector(private val context: Context) : SensorEventListener {
                 // Face-down when Z acceleration is pointing down (less than -8.5 m/s^2)
                 isFaceDown = zAxis < -8.5f
                 checkStance()
+
+                if (isFaceDown) {
+                    // Confirmed resting face down: unregister accelerometer immediately to prevent continuous CPU wakeups.
+                    // The proximity sensor remains active to detect when the phone is lifted.
+                    unregisterAccelerometer()
+                } else {
+                    nonFaceDownSampleCount++
+                    // If covered but not face down (e.g. held upright in hand), stop polling after 5 samples (~1 sec)
+                    if (nonFaceDownSampleCount >= 5) {
+                        unregisterAccelerometer()
+                    }
+                }
             }
+        }
+    }
+
+    private fun unregisterAccelerometer() {
+        if (isAccelerometerRegistered && accelerometer != null) {
+            sensorManager.unregisterListener(this, accelerometer)
+            isAccelerometerRegistered = false
         }
     }
 
