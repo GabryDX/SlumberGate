@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SlumberGate</string>
+    <string name="accessibility_desc">Used during scheduled bedtime lockdown to prevent impulsive bypasses and keep your sleep routine protected.</string>
+</resources>
