@@ -1,6 +1,11 @@
 # SlumberGate 🌙
 **Night Lockout & Digital Sunset Engine for Android**
 
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE.txt)
+[![FOSS Audit: Passed](https://img.shields.io/badge/FOSS%20Audit-Passed%20(Tier--A)-brightgreen.svg)](foss_audit.md)
+[![Security Audit: Verified](https://img.shields.io/badge/Security%20Audit-Verified-blue.svg)](security_audit.md)
+[![100% Offline](https://img.shields.io/badge/Network-100%25%20Offline-success.svg)](security_audit.md)
+
 SlumberGate is a 100% offline, privacy-first, free Android application engineered to eliminate late-night smartphone addiction (*revenge bedtime procrastination*). The app bypasses the user's late-night willpower by automating bedtime detection, offering a structured 5-minute wind-down runway, and locking the phone behind a high-friction, pure-black **Simulated Shutdown** overlay.
 
 ---
@@ -120,17 +125,21 @@ export PATH=$JAVA_HOME/bin:$PATH
 The resulting APK will be generated at:
 `app/build/outputs/apk/debug/app-debug.apk`
 
----
+## 🛡 Audits, FOSS & Security Guarantee
 
-## 🛡 FOSS (Free & Open Source Software) & Privacy Guarantee
+SlumberGate is engineered to be **100% Free & Open Source Software (FOSS)** and designed with a strict defensive security architecture:
 
-SlumberGate is engineered to be **100% Free & Open Source Software (FOSS)**:
-- **Zero Network Access:** The application does **not** request `android.permission.INTERNET`. It cannot send data over the internet even if it tried.
-- **Zero Proprietary Blobs:** Contains zero Google Play Services (`gms`), Firebase, Crashlytics, or proprietary trackers.
-- **F-Droid Anti-Features Audit:** Evaluated against all F-Droid Anti-Features with a 100% clean bill of health. See [foss_audit.md](file:///home/trollo/Projects/Android/SlumberGate/foss_audit.md) for the full report.
-- **Application Security & Threat Model:** Audited against OWASP Mobile Top 10, IPC exposure, and safety guarantees. See [security_audit.md](file:///home/trollo/Projects/Android/SlumberGate/security_audit.md) for the full security assessment.
+* **[FOSS & Privacy Compliance Audit](foss_audit.md)**: Full verification of zero tracking, zero proprietary blobs, zero network calls (no `INTERNET` permission), and 100% clean F-Droid anti-features.
+* **[Application Security Audit Report](security_audit.md)**: Threat modeling, OWASP Mobile Top 10 assessment, IPC component isolation, and life-safety emergency fail-safe verifications.
+
+### Key Privacy & Security Highlights
+- **Zero Network Access:** The application does **not** request `android.permission.INTERNET`. It is physically incapable of transmitting data externally.
+- **Zero Proprietary Blobs:** Contains zero Google Play Services (`gms`), Firebase, Crashlytics, or third-party trackers.
+- **On-Device Sandbox:** All sleep hours, streaks, and settings are stored locally in Jetpack DataStore with cloud backup disabled (`allowBackup="false"`).
+- **Emergency Protection:** System emergency dialer and incoming calls (`TelephonyManager`) unconditionally override the overlay.
 
 ---
 
 ## 📄 License
-This project is licensed under the **ISC License** (an OSI & FSF approved permissive free software license). See [`LICENSE.txt`](file:///home/trollo/Projects/Android/SlumberGate/LICENSE.txt) for details.
+This project is licensed under the **ISC License** (an OSI & FSF approved permissive free software license). See [`LICENSE.txt`](LICENSE.txt) for details.
+
