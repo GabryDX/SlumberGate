@@ -14,7 +14,7 @@ android {
         minSdk = 26
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +42,24 @@ android {
                 "/META-INF/{AL2.0,LGPL2.1}",
                 "/META-INF/INDEX.LIST",
                 "/META-INF/DEPENDENCIES"
+            )
+        }
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val isDebug = variant.buildType == "debug"
+        variant.outputs.forEach { output ->
+            output.outputFileName.set(
+                output.versionName.map { vName ->
+                    val version = vName?.takeIf { it.isNotBlank() } ?: "1.0.0"
+                    if (isDebug) {
+                        "SlumberGate-v$version-debug.apk"
+                    } else {
+                        "SlumberGate-v$version.apk"
+                    }
+                }
             )
         }
     }
