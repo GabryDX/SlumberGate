@@ -60,27 +60,37 @@ class LockdownAccessibilityService : AccessibilityService() {
         return false
     }
 
+    private val allowedPackagesCache = mutableSetOf<String>()
+
     private fun isDialerPackage(packageName: String): Boolean {
+        if (allowedPackagesCache.contains(packageName)) return true
         if (packageName.contains("dialer", ignoreCase = true) ||
             packageName.contains("telecom", ignoreCase = true) ||
             packageName.contains("incall", ignoreCase = true)
         ) {
+            allowedPackagesCache.add(packageName)
             return true
         }
         val dialIntent = Intent(Intent.ACTION_DIAL)
         val resolved = packageManager.queryIntentActivities(dialIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        return resolved.any { it.activityInfo.packageName == packageName }
+        val matches = resolved.any { it.activityInfo.packageName == packageName }
+        if (matches) allowedPackagesCache.add(packageName)
+        return matches
     }
 
     private fun isClockPackage(packageName: String): Boolean {
+        if (allowedPackagesCache.contains(packageName)) return true
         if (packageName.contains("clock", ignoreCase = true) ||
             packageName.contains("deskclock", ignoreCase = true)
         ) {
+            allowedPackagesCache.add(packageName)
             return true
         }
         val alarmIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
         val resolved = packageManager.queryIntentActivities(alarmIntent, PackageManager.MATCH_DEFAULT_ONLY)
-        return resolved.any { it.activityInfo.packageName == packageName }
+        val matches = resolved.any { it.activityInfo.packageName == packageName }
+        if (matches) allowedPackagesCache.add(packageName)
+        return matches
     }
 
     private fun isSystemInputOrEssential(packageName: String): Boolean {

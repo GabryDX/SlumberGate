@@ -72,7 +72,10 @@ fun SimulatedShutdownOverlay(
             val now = Date()
             currentTimeString = timeFormat.format(now)
             sleepRestProjection = SleepMath.calculateProjectedSleep(wakeHour, wakeMinute)
-            delay(1000L)
+            // Align delay precisely to the next minute boundary to avoid 3,600 needless wakeups/hour
+            val currentSeconds = (System.currentTimeMillis() / 1000) % 60
+            val secondsToNextMinute = (60 - currentSeconds).coerceAtLeast(1)
+            delay(secondsToNextMinute * 1000L + 50L)
         }
     }
 
