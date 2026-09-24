@@ -127,8 +127,8 @@ The resulting APK will be generated at:
 SlumberGate is engineered to be **100% Free & Open Source Software (FOSS)**:
 - **Zero Network Access:** The application does **not** request `android.permission.INTERNET`. It cannot send data over the internet even if it tried.
 - **Zero Proprietary Blobs:** Contains zero Google Play Services (`gms`), Firebase, Crashlytics, or proprietary trackers.
-- **Zero Telemetry or Analytics:** User sleep hours, streaks, and settings are strictly preserved on-device in local Jetpack DataStore.
 - **F-Droid Anti-Features Audit:** Evaluated against all F-Droid Anti-Features with a 100% clean bill of health. See [foss_audit.md](file:///home/trollo/Projects/Android/SlumberGate/foss_audit.md) for the full report.
+- **Application Security & Threat Model:** Audited against OWASP Mobile Top 10, IPC exposure, and safety guarantees. See [security_audit.md](file:///home/trollo/Projects/Android/SlumberGate/security_audit.md) for the full security assessment.
 
 ---
 
