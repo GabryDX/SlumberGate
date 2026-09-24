@@ -22,7 +22,9 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
@@ -34,6 +36,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -73,9 +77,16 @@ fun DashboardScreen(
     var showBedtimeDialog by remember { mutableStateOf(false) }
     var showWakeDialog by remember { mutableStateOf(false) }
     var showWhitelistSheet by remember { mutableStateOf(false) }
+    var showFossDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.refreshCurrentSsid()
+    }
+
+    if (showFossDialog) {
+        FossLicenseDialog(
+            onDismiss = { showFossDialog = false }
+        )
     }
 
     if (showBedtimeDialog) {
@@ -199,8 +210,15 @@ fun DashboardScreen(
                 )
             }
 
+            // FOSS & Privacy Card
             item {
-                Spacer(modifier = Modifier.height(16.dp))
+                FossAboutCard(
+                    onOpenDetails = { showFossDialog = true }
+                )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = onNavigateToPermissions,
                     modifier = Modifier.fillMaxWidth(),
@@ -610,6 +628,146 @@ private fun SandboxTestingCard(
                     Icon(imageVector = Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Exit Simulation", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FossAboutCard(
+    onOpenDetails: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF14241B)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Shield,
+                    contentDescription = null,
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "100% Free & Open Source",
+                        color = Color.White,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.Verified,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Offline by design • Zero trackers • ISC License",
+                    color = TextMuted,
+                    fontSize = 12.sp
+                )
+            }
+
+            OutlinedButton(
+                onClick = onOpenDetails,
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFF4CAF50)
+                )
+            ) {
+                Text("About", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun FossLicenseDialog(
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(DarkSurface)
+                .padding(24.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Shield,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "SlumberGate (FOSS)",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = "SlumberGate is built with a commitment to user sovereignty, digital wellness, and open source freedom.",
+                    color = Color.LightGray,
+                    fontSize = 13.sp,
+                    lineHeight = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(DarkSurfaceVariant)
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(text = "✓ Zero Internet Access (No INTERNET permission)", color = Color.White, fontSize = 12.sp)
+                    Text(text = "✓ Zero Analytics or Telemetry tracking", color = Color.White, fontSize = 12.sp)
+                    Text(text = "✓ Zero Proprietary SDKs or Closed Blobs", color = Color.White, fontSize = 12.sp)
+                    Text(text = "✓ 100% On-Device Data Storage (Jetpack DataStore)", color = Color.White, fontSize = 12.sp)
+                    Text(text = "✓ FSF / OSI Approved License: ISC License", color = Color.White, fontSize = 12.sp)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text("Close", color = AmberPrimary, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
